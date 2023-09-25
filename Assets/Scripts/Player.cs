@@ -35,6 +35,7 @@ public class Player : NetworkBehaviour
             if (IsClient)
             {
                 PlayerBoundries();
+                OwnerHandleInput();
             }
             OwnerHandleInput();
         }
@@ -77,7 +78,7 @@ public class Player : NetworkBehaviour
         playerBody.GetComponent<MeshRenderer>().material.color = playerColorNetVar.Value;
     }
 
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = true)]
     public void MoveServerRPC(Vector3 movement, Vector3 rotation)
     {
         transform.Translate(movement);

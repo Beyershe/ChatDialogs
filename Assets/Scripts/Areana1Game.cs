@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
+using UnityEditor.PackageManager;
 
 public class Areana1Game : NetworkBehaviour
 {
@@ -61,23 +62,20 @@ public class Areana1Game : NetworkBehaviour
 
     private void SpawnPlayers()
     {
-        if (IsClient)
+        foreach(ulong clientId in NetworkManager.ConnectedClientsIds)
         {
-            foreach (ulong ClientId in NetworkManager.ConnectedClientsIds)
+            Player prefab = playerPrefab;
+            if (clientId == NetworkManager.LocalClientId)
             {
-                Player playerSpawn = Instantiate(playerPrefab, NextPosition(), Quaternion.identity);
-                playerSpawn.GetComponent<NetworkObject>().SpawnWithOwnership(ClientId);
-                playerSpawn.playerColorNetVar.Value = NextColor();
+                prefab = playerHost;
             }
-        }
-        if(IsHost)
-        {
-            foreach (ulong ClientId in NetworkManager.ConnectedClientsIds)
-            {
-                Player playerSpawn = Instantiate(playerHost, NextPosition(), Quaternion.identity);
-                playerSpawn.GetComponent<NetworkObject>().SpawnWithOwnership(ClientId);
-                playerSpawn.playerColorNetVar.Value = NextColor();
-            }
+
+            Player playerSpawn = Instantiate(
+                prefab,
+                NextPosition(), 
+                Quaternion.identity);
+            playerSpawn.GetComponent<NetworkObject>().SpawnWithOwnership(clientId);
+            playerSpawn.playerColorNetVar.Value = NextColor();
         }
     }
 
